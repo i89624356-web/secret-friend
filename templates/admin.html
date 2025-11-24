@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>관리자 페이지</title>
+</head>
+
+<body>
+    <h1>관리자 페이지 / 제출 기록</h1>
+
+    {% if records %}
+    <ul>
+        {% for r in records %}
+        <li>
+            <strong>{{ r.name }}</strong> →
+            {{ r.checks }}
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>아직 제출된 데이터가 없습니다.</p>
+    {% endif %}
+
+    <br>
+    <a href="/">돌아가기</a>
+</body>
+
+</html>

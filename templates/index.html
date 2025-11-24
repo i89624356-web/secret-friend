@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>비밀친구 정보 입력</title>
+</head>
+
+<body>
+    <h1>비밀친구 입력</h1>
+
+    <form action="/result" method="POST">
+        <label>이름:</label>
+        <input type="text" name="name" required>
+        <br><br>
+
+        <p>체크 항목 (5개)</p>
+        <label><input type="checkbox" name="checks" value="항목1"> 항목1</label><br>
+        <label><input type="checkbox" name="checks" value="항목2"> 항목2</label><br>
+        <label><input type="checkbox" name="checks" value="항목3"> 항목3</label><br>
+        <label><input type="checkbox" name="checks" value="항목4"> 항목4</label><br>
+        <label><input type="checkbox" name="checks" value="항목5"> 항목5</label><br>
+
+        <br>
+        <button type="submit">제출하기</button>
+    </form>
+
+</body>
+
+</html>

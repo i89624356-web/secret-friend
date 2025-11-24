@@ -1,40 +1,70 @@
 from flask import Flask, render_template, request
-import pandas as pd
-from datetime import datetime
+import json
 import os
 
 app = Flask(__name__)
 
-DATA_FILE = "data.csv"
+DATA_FILE = "data.json"
 
-# 데이터 파일 없으면 헤더 추가
-if not os.path.exists(DATA_FILE):
-    pd.DataFrame(columns=["name", "items", "time"]).to_csv(DATA_FILE, index=False)
+# ======================
+# 기록 저장 함수
+# ======================
+def save_record(name, checks):
+    record = {"name": name, "checks": checks}
 
-@app.route("/")
-def home():
-    return render_template("form.html")
+    # data.json 없으면 빈 리스트 생성
+    if not os.path.exists(DATA_FILE):
+        with open(DATA_FILE, "w", encoding="utf-8") as f:
+            json.dump([], f, ensure_ascii=False, indent=4)
 
-@app.route("/submit", methods=["POST"])
-def submit():
-    name = request.form["name"]
-    items = request.form.getlist("items")
-    
-    row = {
-        "name": name,
-        "items": ",".join(items),
-        "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    }
+    # 기존 데이터 불러오기
+    with open(DATA_FILE, "r", encoding="utf-8") as f:
+        data = json.load(f)
 
-    df = pd.DataFrame([row])
-    df.to_csv(DATA_FILE, mode="a", index=False, header=False)
+    # 기록 추가
+    data.append(record)
 
-    return "<h2>제출 완료!</h2>"
+    # 다시 저장
+    with open(DATA_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
 
+
+# ======================
+# 메인 입력 페이지
+# ======================
+@app.route("/", methods=["GET"])
+def index():
+    return render_template("index.html")
+
+
+# ======================
+# 제출 → 저장 → 결과 페이지
+# ======================
+@app.route("/result", methods=["POST"])
+def result():
+    name = request.form.get("name")
+    checks = request.form.getlist("checks")
+
+    # 저장
+    save_record(name, checks)
+
+    return render_template("result.html", name=name, checks=checks)
+
+
+# ======================
+# 관리자 페이지
+# ======================
 @app.route("/admin")
-def admin():
-    df = pd.read_csv(DATA_FILE)
-    return df.to_html()
+def admin_page():
+    # data.json 없으면 빈 화면
+    if not os.path.exists(DATA_FILE):
+        return render_template("admin.html", records=[])
+
+    with open(DATA_FILE, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    return render_template("admin.html", records=data)
+
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
