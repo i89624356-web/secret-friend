@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 
 <head>
     <meta charset="UTF-8">
@@ -7,14 +7,23 @@
 </head>
 
 <body>
-    <h1>관리자 페이지 / 제출 기록</h1>
+    <h1>관리자 페이지</h1>
+
+    <p>
+        <a href="{{ url_for('admin_summary') }}">
+            📊 제출 현황 표로 보기
+        </a>
+    </p>
+
+    <hr>
+
+    <h2>최근 제출 기록(요약)</h2>
 
     {% if records %}
     <ul>
         {% for r in records %}
         <li>
-            <strong>{{ r.name }}</strong> →
-            {{ r.checks }}
+            <strong>{{ r.name }}</strong> → {{ r.checks }}
         </li>
         {% endfor %}
     </ul>
@@ -23,7 +32,7 @@
     {% endif %}
 
     <br>
-    <a href="/">돌아가기</a>
+    <a href="/">메인 페이지로 돌아가기</a>
 </body>
 
 </html>

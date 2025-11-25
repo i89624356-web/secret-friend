@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <title>제출 현황 요약</title>
+
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>제출 현황 요약</h1>
+
+    {% if records %}
+    <table>
+        <tr>
+            <th>번호</th>
+            <th>이름</th>
+            <th>체크한 항목</th>
+        </tr>
+
+        {% for r in records %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ r.name }}</td>
+            <td>
+                {% if r.checks %}
+                {{ r.checks | join(", ") }}
+                {% else %}
+                없음
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    {% else %}
+    <p>아직 제출된 데이터가 없습니다.</p>
+    {% endif %}
+
+    <a href="{{ url_for('admin_page') }}">⬅ 관리자 페이지로 돌아가기</a>
+
+</body>
+
+</html>
