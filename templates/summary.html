@@ -44,6 +44,7 @@
             <th>번호</th>
             <th>이름</th>
             <th>체크한 항목</th>
+            <th>제출 시각</th> <!-- 새 컬럼 -->
         </tr>
 
         {% for r in records %}
@@ -56,6 +57,10 @@
                 {% else %}
                 없음
                 {% endif %}
+            </td>
+            <td>
+                {{ r.time | default("시간 정보 없음") }}
+                <!-- 이전에 저장된 오래된 기록엔 time이 없을 수 있으니 default 달아둠 -->
             </td>
         </tr>
         {% endfor %}

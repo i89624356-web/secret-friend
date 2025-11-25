@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request
 import json
 import os
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -11,9 +12,13 @@ DATA_FILE = "data.json"
 # 기록 저장 함수
 # ======================
 def save_record(name, checks):
-    record = {"name": name, "checks": checks}
+    record = {
+        "name": name,
+        "checks": checks,
+        "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # ← 제출 시각
+    }
 
-    # data.json 없으면 새로 생성 (빈 리스트)
+    # data.json 없으면 빈 리스트 생성
     if not os.path.exists(DATA_FILE):
         with open(DATA_FILE, "w", encoding="utf-8") as f:
             json.dump([], f, ensure_ascii=False, indent=4)
@@ -22,13 +27,12 @@ def save_record(name, checks):
     with open(DATA_FILE, "r", encoding="utf-8") as f:
         data = json.load(f)
 
-    # 새 기록 추가
+    # 기록 추가
     data.append(record)
 
     # 다시 저장
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
-
 
 
 # ======================
