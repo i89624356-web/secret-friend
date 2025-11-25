@@ -1,11 +1,14 @@
 from flask import Flask, render_template, request
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 
 app = Flask(__name__)
 
 DATA_FILE = "data.json"
+
+# 한국 시간(KST)
+KST = timezone(timedelta(hours=9))
 
 
 # ======================
@@ -15,7 +18,7 @@ def save_record(name, checks):
     record = {
         "name": name,
         "checks": checks,
-        "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # ← 제출 시각
+        "time": datetime.now(KST).strftime("%Y-%m-%d %H:%M:%S")  # 한국 시간 저장
     }
 
     # data.json 없으면 빈 리스트 생성
@@ -43,7 +46,6 @@ def index():
     return render_template("index.html")
 
 
-
 # ======================
 # 제출 → 저장 → 결과 페이지
 # ======================
@@ -57,35 +59,31 @@ def result():
     return render_template("result.html", name=name, checks=checks)
 
 
-
 # ======================
-# 관리자 페이지 (링크만 있는 기본 페이지)
+# 관리자 페이지 (링크 + 최근 5개 요약)
 # ======================
 @app.route("/admin")
 def admin_page():
-    # data.json 없으면 빈 화면(표와 요약 모두 없음)
     if not os.path.exists(DATA_FILE):
         return render_template("admin.html", records=[], summary=[])
 
     with open(DATA_FILE, "r", encoding="utf-8") as f:
         data = json.load(f)
 
-    # 전체 기록 표시용
+    # 전체 기록
     records = data
 
-    # summary용 (최근 5개)
-    summary = data[-5:]        # 마지막 5개 뽑기
-    summary = summary[::-1]    # 최신순으로 뒤집기
+    # 마지막 5개 기록 (최신순)
+    summary = data[-5:][::-1]
 
     return render_template("admin.html", records=records, summary=summary)
 
 
 # ======================
-# 관리자 요약 페이지(표로 보여주는 기능)
+# 관리자 전체 표 페이지
 # ======================
 @app.route("/admin/summary")
 def admin_summary():
-    # data.json 없으면 빈 리스트 전달
     if not os.path.exists(DATA_FILE):
         records = []
     else:
@@ -93,7 +91,6 @@ def admin_summary():
             records = json.load(f)
 
     return render_template("summary.html", records=records)
-
 
 
 # ======================
