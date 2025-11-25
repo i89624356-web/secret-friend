@@ -59,8 +59,21 @@ def result():
 # ======================
 @app.route("/admin")
 def admin_page():
-    return render_template("admin.html")
+    # data.json 없으면 빈 화면(표와 요약 모두 없음)
+    if not os.path.exists(DATA_FILE):
+        return render_template("admin.html", records=[], summary=[])
 
+    with open(DATA_FILE, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    # 전체 기록 표시용
+    records = data
+
+    # summary용 (최근 5개)
+    summary = data[-5:]        # 마지막 5개 뽑기
+    summary = summary[::-1]    # 최신순으로 뒤집기
+
+    return render_template("admin.html", records=records, summary=summary)
 
 
 # ======================
