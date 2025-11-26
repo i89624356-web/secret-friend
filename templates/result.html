@@ -3,19 +3,17 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>제출 결과</title>
+    <title>제출 완료</title>
 </head>
 
 <body>
     <h1>제출 완료!</h1>
 
-    <p><strong>이름:</strong> {{ name }}</p>
+    <p>이름: {{ name }}</p>
 
-    <p><strong>체크한 항목:</strong></p>
+    <p>체크한 항목:</p>
     <ul>
-        {% for c in checks %}
-        <li>{{ c }}</li>
-        {% endfor %}
+        <li>{{ checks }}</li>
     </ul>
 
     <br>
