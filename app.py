@@ -17,9 +17,10 @@ KST = timezone(timedelta(hours=9))
 def save_record(name, checks):
     record = {
         "name": name,
-        "checks": checks,
-        "time": datetime.now(KST).strftime("%Y-%m-%d %H:%M:%S")  # 한국 시간 저장
+        "checks": checks,  # 문자열 1개 저장됨
+        "time": datetime.now(KST).strftime("%Y-%m-%d %H:%M:%S")
     }
+
 
     # data.json 없으면 빈 리스트 생성
     if not os.path.exists(DATA_FILE):
@@ -52,7 +53,7 @@ def index():
 @app.route("/result", methods=["POST"])
 def result():
     name = request.form.get("name")
-    checks = request.form.getlist("checks")
+    checks = request.form.get("checks")   # ← 하나만 선택할 수 있으므로 get() 사용
 
     save_record(name, checks)
 
