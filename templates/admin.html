@@ -19,11 +19,19 @@
 
     <h2>최근 제출 기록(요약)</h2>
 
-    {% if records %}
+    {% if summary %}
     <ul>
-        {% for r in records %}
+        {% for r in summary %}
         <li>
-            <strong>{{ r.name }}</strong> → {{ r.checks }}
+            <strong>{{ r.name }}</strong> -
+            {% if r.checks is string %}
+            {{ r.checks }}
+            {% elif r.checks is iterable %}
+            {{ r.checks | join(', ') }}
+            {% else %}
+            {{ r.checks }}
+            {% endif %}
+            ({{ r.time }})
         </li>
         {% endfor %}
     </ul>

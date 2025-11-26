@@ -4,74 +4,83 @@
 <head>
     <meta charset="UTF-8">
     <title>제출 현황 요약</title>
-
     <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            margin: 40px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
         table {
             border-collapse: collapse;
             width: 100%;
-            margin-top: 20px;
         }
 
         th,
         td {
-            border: 1px solid #ccc;
-            padding: 10px;
+            border: 1px solid #ddd;
+            padding: 8px 10px;
             text-align: left;
         }
 
         th {
-            background-color: #f2f2f2;
+            background: #f5f5f5;
         }
 
-        h1 {
-            margin-bottom: 10px;
+        tr:nth-child(even) {
+            background: #fafafa;
         }
 
         a {
-            display: inline-block;
-            margin-top: 20px;
+            text-decoration: none;
+            color: #6c2bd9;
         }
     </style>
 </head>
 
 <body>
-
     <h1>제출 현황 요약</h1>
 
     {% if records %}
     <table>
-        <tr>
-            <th>번호</th>
-            <th>이름</th>
-            <th>체크한 항목</th>
-            <th>제출 시각</th> <!-- 새 컬럼 -->
-        </tr>
-
-        {% for r in records %}
-        <tr>
-            <td>{{ loop.index }}</td>
-            <td>{{ r.name }}</td>
-            <td>
-                {% if r.checks %}
-                {{ r.checks | join(", ") }}
-                {% else %}
-                없음
-                {% endif %}
-            </td>
-            <td>
-                {{ r.time | default("시간 정보 없음") }}
-                <!-- 이전에 저장된 오래된 기록엔 time이 없을 수 있으니 default 달아둠 -->
-            </td>
-        </tr>
-        {% endfor %}
+        <thead>
+            <tr>
+                <th>번호</th>
+                <th>이름</th>
+                <th>체크한 항목</th>
+                <th>제출 시각</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in records %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ r.name }}</td>
+                <td>
+                    {# 문자열이면 그대로, 리스트면 join해서 표시 #}
+                    {% if r.checks is string %}
+                    {{ r.checks }}
+                    {% elif r.checks is iterable %}
+                    {{ r.checks | join(', ') }}
+                    {% else %}
+                    {{ r.checks }}
+                    {% endif %}
+                </td>
+                <td>{{ r.time }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
-
     {% else %}
     <p>아직 제출된 데이터가 없습니다.</p>
     {% endif %}
 
-    <a href="{{ url_for('admin_page') }}">⬅ 관리자 페이지로 돌아가기</a>
-
+    <p style="margin-top:20px;">
+        <a href="/admin">← 관리자 페이지로 돌아가기</a>
+    </p>
 </body>
 
 </html>
