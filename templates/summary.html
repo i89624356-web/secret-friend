@@ -38,6 +38,19 @@
             text-decoration: none;
             color: #6c2bd9;
         }
+
+        button {
+            padding: 4px 10px;
+            background: #e63946;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #d62839;
+        }
     </style>
 </head>
 
@@ -52,6 +65,7 @@
                 <th>이름</th>
                 <th>체크한 항목</th>
                 <th>제출 시각</th>
+                <th>관리</th>
             </tr>
         </thead>
         <tbody>
@@ -59,8 +73,8 @@
             <tr>
                 <td>{{ loop.index }}</td>
                 <td>{{ r.name }}</td>
+
                 <td>
-                    {# 문자열이면 그대로, 리스트면 join해서 표시 #}
                     {% if r.checks is string %}
                     {{ r.checks }}
                     {% elif r.checks is iterable %}
@@ -69,7 +83,16 @@
                     {{ r.checks }}
                     {% endif %}
                 </td>
+
                 <td>{{ r.time }}</td>
+
+                <!-- 삭제 버튼 -->
+                <td>
+                    <form method="post" action="{{ url_for('delete', idx=loop.index0) }}"
+                        onsubmit="return confirm('삭제 하시겠습니까?');" style="display:inline;">
+                        <button type="submit">삭제</button>
+                    </form>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
