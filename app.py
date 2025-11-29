@@ -105,16 +105,24 @@ def delete(idx):
     records.pop(idx)
     save_records(records)
 
-    # 어디서 삭제를 눌렀는지 확인
+    # 어디에서 삭제 요청이 왔는지 확인
     source = request.form.get("source")
-    name = request.form.get("name", "").strip()
 
-    if source == "search" and name:
-        # 이름 검색 페이지에서 온 경우 → 같은 이름으로 다시 검색된 화면으로
-        return redirect(url_for("admin_search", name=name))
-    else:
-        # 기본: 전체 요약 페이지로
-        return redirect(url_for("admin_summary"))
+    # 1) 이름 검색 페이지에서 삭제한 경우
+    if source == "search":
+        name = (request.form.get("name") or "").strip()
+        if name:
+            return redirect(url_for("admin_search", name=name))
+
+    # 2) 날짜 검색 페이지에서 삭제한 경우
+    if source == "date":
+        date = (request.form.get("date") or "").strip()
+        sort = request.form.get("sort", "0")
+        if date:
+            return redirect(url_for("admin_date_search", date=date, sort=sort))
+
+    # 3) 기본: 전체 요약 페이지로
+    return redirect(url_for("admin_summary"))
 
 
 # ======================
@@ -146,6 +154,48 @@ def admin_search():
         "search.html",
         query=query,
         records=filtered,
+    )
+
+
+# ======================
+# 날짜별 검색 페이지
+# ======================
+@app.route("/admin/date", methods=["GET", "POST"])
+def admin_date_search():
+    all_records = load_records()
+    date_query = ""
+    filtered = []
+
+    # 날짜값 받기: POST(검색 폼) 또는 GET(링크/리다이렉트)
+    if request.method == "POST":
+        date_query = (request.form.get("date") or "").strip()
+    else:
+        date_query = (request.args.get("date") or "").strip()
+
+    # sort=1 이면 이름순 정렬, 기본은 시간순
+    sort_mode = (request.args.get("sort") or "0") == "1"
+
+    if date_query:
+        # time 형식: "YYYY-MM-DD HH:MM:SS" → 앞 10글자가 날짜
+        # 원본 인덱스(_idx)를 같이 붙여서 넘겨준다 (삭제용)
+        filtered = [
+            {**r, "_idx": i}
+            for i, r in enumerate(all_records)
+            if r.get("time", "").startswith(date_query)
+        ]
+
+        if sort_mode:
+            # 이름순 정렬
+            filtered.sort(key=lambda r: r.get("name", ""))
+        else:
+            # 시간순 정렬
+            filtered.sort(key=lambda r: r.get("time", ""))
+
+    return render_template(
+        "date_search.html",
+        date_query=date_query,
+        records=filtered,
+        sort=sort_mode,
     )
 
 
