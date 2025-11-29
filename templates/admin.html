@@ -4,11 +4,32 @@
 <head>
     <meta charset="UTF-8">
     <title>관리자 페이지</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            margin: 40px;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        a {
+            text-decoration: none;
+            color: #6c2bd9;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        ul li {
+            margin-bottom: 6px;
+        }
+    </style>
 </head>
 
 <body>
-    <h1>관리자 페이지</h1>
-
     <h1>관리자 페이지</h1>
 
     <p>
@@ -27,15 +48,7 @@
     <ul>
         {% for r in summary %}
         <li>
-            <strong>{{ r.name }}</strong> -
-            {% if r.checks is string %}
-            {{ r.checks }}
-            {% elif r.checks is iterable %}
-            {{ r.checks | join(', ') }}
-            {% else %}
-            {{ r.checks }}
-            {% endif %}
-            ({{ r.time }})
+            <strong>{{ r.name }}</strong> - {{ r.checks }} ({{ r.time }})
         </li>
         {% endfor %}
     </ul>
