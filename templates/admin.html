@@ -9,10 +9,12 @@
 <body>
     <h1>관리자 페이지</h1>
 
+    <h1>관리자 페이지</h1>
+
     <p>
-        <a href="{{ url_for('admin_summary') }}">
-            📊 제출 현황 표로 보기
-        </a>
+        <a href="{{ url_for('admin_summary') }}">📊 제출 현황 표로 보기</a>
+        &nbsp; | &nbsp;
+        <a href="{{ url_for('admin_search') }}">🔍 이름으로 검색</a>
     </p>
 
     <hr>

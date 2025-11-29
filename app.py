@@ -112,6 +112,35 @@ def delete(idx):
 
 
 # ======================
+# 이름으로 검색 페이지
+# ======================
+@app.route("/admin/search", methods=["GET", "POST"])
+def admin_search():
+    all_records = load_records()
+    query = ""
+    filtered = []
+
+    if request.method == "POST":
+        query = request.form.get("name", "").strip()
+        if query:
+            q_lower = query.lower()
+            # 완전 일치 검색 (대소문자 무시)
+            filtered = [
+                r for r in all_records
+                if r.get("name", "").lower() == q_lower
+            ]
+            # 만약 "포함 검색" 원하면 위 줄 대신 아래로 바꾸면 됨:
+            # if q_lower in r.get("name", "").lower()
+
+    # GET이거나, 이름 안 넣고 검색 누르면 -> 결과는 빈 리스트
+    return render_template(
+        "search.html",
+        query=query,
+        records=filtered,
+    )
+
+
+# ======================
 # 서버 실행
 # ======================
 if __name__ == "__main__":
