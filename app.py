@@ -103,12 +103,18 @@ def delete(idx):
 
     # 해당 기록 삭제
     records.pop(idx)
-
-    # 파일 다시 저장
     save_records(records)
 
-    # 전체 표 페이지로 돌아가기 (엔드포인트 이름은 함수 이름!)
-    return redirect(url_for("admin_summary"))
+    # 어디서 삭제를 눌렀는지 확인
+    source = request.form.get("source")
+    name = request.form.get("name", "").strip()
+
+    if source == "search" and name:
+        # 이름 검색 페이지에서 온 경우 → 같은 이름으로 다시 검색된 화면으로
+        return redirect(url_for("admin_search", name=name))
+    else:
+        # 기본: 전체 요약 페이지로
+        return redirect(url_for("admin_summary"))
 
 
 # ======================
@@ -120,21 +126,22 @@ def admin_search():
     query = ""
     filtered = []
 
+    # POST로 온 경우(검색 버튼 눌렀을 때)
     if request.method == "POST":
         query = request.form.get("name", "").strip()
-        if query:
-            q_lower = query.lower()
+    else:
+        # 삭제 후 redirect로 돌아올 때는 GET ?name=... 으로 받기
+        query = (request.args.get("name") or "").strip()
 
-            # ★ 원본 인덱스(_idx)를 같이 붙여서 넘겨준다
-            filtered = [
-                {**r, "_idx": i}
-                for i, r in enumerate(all_records)
-                if r.get("name", "").lower() == q_lower
-            ]
-            # 만약 "포함 검색" 원하면 위 조건을 이런 식으로 바꿔도 됨:
-            # if q_lower in r.get("name", "").lower()
+    if query:
+        q_lower = query.lower()
+        # ★ 원본 인덱스(_idx)를 같이 붙여서 넘겨준다
+        filtered = [
+            {**r, "_idx": i}
+            for i, r in enumerate(all_records)
+            if r.get("name", "").lower() == q_lower
+        ]
 
-    # GET이거나, 이름 안 넣고 검색 누르면 -> 결과는 빈 리스트
     return render_template(
         "search.html",
         query=query,

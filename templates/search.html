@@ -119,6 +119,10 @@
                 <td>
                     <form method="post" action="{{ url_for('delete', idx=r._idx) }}" style="display:inline;"
                         onsubmit="return confirm('이 기록을 삭제할까요?');">
+                        <!-- 내가 이름검색창에서 삭제했다는 표시 -->
+                        <input type="hidden" name="source" value="search">
+                        <!-- 어떤 이름으로 검색했는지 -->
+                        <input type="hidden" name="name" value="{{ query }}">
                         <button type="submit" class="btn-delete">삭제</button>
                     </form>
                 </td>
