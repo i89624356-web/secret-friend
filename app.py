@@ -124,12 +124,14 @@ def admin_search():
         query = request.form.get("name", "").strip()
         if query:
             q_lower = query.lower()
-            # 완전 일치 검색 (대소문자 무시)
+
+            # ★ 원본 인덱스(_idx)를 같이 붙여서 넘겨준다
             filtered = [
-                r for r in all_records
+                {**r, "_idx": i}
+                for i, r in enumerate(all_records)
                 if r.get("name", "").lower() == q_lower
             ]
-            # 만약 "포함 검색" 원하면 위 줄 대신 아래로 바꾸면 됨:
+            # 만약 "포함 검색" 원하면 위 조건을 이런 식으로 바꿔도 됨:
             # if q_lower in r.get("name", "").lower()
 
     # GET이거나, 이름 안 넣고 검색 누르면 -> 결과는 빈 리스트
