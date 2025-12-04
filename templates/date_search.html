@@ -38,8 +38,8 @@
         th,
         td {
             border: 1px solid #ddd;
-            padding: 8px 10px;
-            text-align: left;
+            padding: 6px 8px;
+            text-align: center;
         }
 
         th {
@@ -83,7 +83,6 @@
 <body>
     <h1>날짜별 제출 기록 검색</h1>
 
-    <!-- 날짜 선택 폼 -->
     <form method="post">
         <label>날짜: </label>
         <input type="date" name="date" value="{{ date_query or '' }}" required>
@@ -91,7 +90,6 @@
     </form>
 
     {% if date_query %}
-    <!-- 정렬 토글 -->
     <p>
         날짜: <strong>{{ date_query }}</strong> |
         {% if sort %}
@@ -108,7 +106,11 @@
                 <th>번호</th>
                 <th>시간</th>
                 <th>이름</th>
-                <th>체크한 항목</th>
+
+                {% for short, full in items %}
+                <th>{{ short }}</th>
+                {% endfor %}
+
                 <th>관리</th>
             </tr>
         </thead>
@@ -118,23 +120,22 @@
                 <td>{{ loop.index }}</td>
                 <td>{{ r.time }}</td>
                 <td>{{ r.name }}</td>
+
+                {% for short, full in items %}
                 <td>
-                    {% if r.checks is string %}
-                    {{ r.checks }}
-                    {% elif r.checks is iterable %}
-                    {{ r.checks | join(', ') }}
+                    {% if r.checks and full in r.checks %}
+                    O
                     {% else %}
-                    {{ r.checks }}
+                    –
                     {% endif %}
                 </td>
+                {% endfor %}
+
                 <td>
                     <form method="post" action="{{ url_for('delete', idx=r._idx) }}" style="display:inline;"
                         onsubmit="return confirm('이 기록을 삭제할까요?');">
-                        <!-- 내가 날짜 페이지에서 삭제했다는 표시 -->
                         <input type="hidden" name="source" value="date">
-                        <!-- 어떤 날짜에서 보고 있었는지 -->
                         <input type="hidden" name="date" value="{{ date_query }}">
-                        <!-- 현재 정렬 상태 (0=시간순, 1=이름순) -->
                         <input type="hidden" name="sort" value="{{ 1 if sort else 0 }}">
                         <button type="submit" class="btn-delete">삭제</button>
                     </form>
@@ -144,9 +145,7 @@
         </tbody>
     </table>
     {% else %}
-    <p class="no-result">
-        {{ date_query }} 날짜에는 제출된 데이터가 없습니다.
-    </p>
+    <p class="no-result">{{ date_query }} 날짜에는 제출된 데이터가 없습니다.</p>
     {% endif %}
     {% else %}
     <p class="no-result">위에서 날짜를 선택하고 검색을 눌러주세요.</p>

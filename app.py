@@ -164,10 +164,11 @@ def admin_search():
         ]
 
     return render_template(
-        "search.html",
-        query=query,
-        records=filtered,
-    )
+    "search.html",
+    query=query,
+    records=filtered,
+    items=CHECK_ITEMS,   # ← 추가
+)
 
 
 # ======================
@@ -209,8 +210,8 @@ def admin_date_search():
         date_query=date_query,
         records=filtered,
         sort=sort_mode,
+        items=CHECK_ITEMS,   # ← 추가
     )
-
 
 # ======================
 # 서버 실행
