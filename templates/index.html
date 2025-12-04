@@ -1,55 +1,65 @@
-<form action="/result" method="POST">
-    <label>본인 이름:</label>
-    <input type="text" name="name" required>
-    <br><br>
+<!DOCTYPE html>
+<html lang="ko">
 
-    <p>마니또 미션 체크 (여러 개 선택 가능)</p>
+<head>
+    <meta charset="UTF-8">
+    <title>마니또 정보 입력</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            margin: 40px;
+        }
 
-    <label>
-        <input type="checkbox" name="checks" value="칭찬 3개">
-        칭찬
-    </label><br>
+        h1 {
+            margin-bottom: 20px;
+        }
 
-    <label>
-        <input type="checkbox" name="checks" value="먼저 말 걸고 대화하기">
-        대화하기
-    </label><br>
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
 
-    <label>
-        <input type="checkbox" name="checks" value="작은 간식 주기">
-        간식
-    </label><br>
+        input[type="text"] {
+            padding: 6px 10px;
+            font-size: 1rem;
+        }
 
-    <label>
-        <input type="checkbox" name="checks" value="먼저 인사하기">
-        인사
-    </label><br>
+        button {
+            margin-top: 14px;
+            padding: 8px 16px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
 
-    <label>
-        <input type="checkbox" name="checks" value="응원하는 메시지 적고 본인을 찾을 수 있는 힌트 남기는 쪽지 주기">
-        응원 메시지
-    </label><br>
+<body>
 
-    <label>
-        <input type="checkbox" name="checks" value="마니또 이름으로 3행시 해서 쪽지 남기기">
-        3행시
-    </label><br>
+    <h1>마니또 입력</h1>
 
-    <label>
-        <input type="checkbox" name="checks" value="정성을 담아서 마니또 얼굴 그려주기">
-        얼굴 그리기
-    </label><br>
+    <form action="/result" method="POST">
 
-    <label>
-        <input type="checkbox" name="checks" value="도움이 필요해 보이면 도와주기 & 실드 쳐주기">
-        도와주기
-    </label><br>
+        <label>본인 이름:</label>
+        <input type="text" name="name" required>
+        <br><br>
 
-    <label>
-        <input type="checkbox" name="checks" value="좋아하는 관심사 묻기">
-        관심사 묻기
-    </label><br>
+        <p>마니또 미션 체크 (여러 개 선택 가능)</p>
 
-    <br>
-    <button type="submit">제출하기</button>
-</form>
+        <label><input type="checkbox" name="checks" value="칭찬 3개"> 칭찬 3개</label>
+        <label><input type="checkbox" name="checks" value="먼저 말 걸고 대화하기"> 먼저 말 걸고 대화하기</label>
+        <label><input type="checkbox" name="checks" value="작은 간식 주기"> 작은 간식 주기</label>
+        <label><input type="checkbox" name="checks" value="먼저 인사하기"> 먼저 인사하기</label>
+        <label><input type="checkbox" name="checks" value="응원하는 메시지 적고 본인을 찾을 수 있는 힌트 남기는 쪽지 주기">
+            응원 메시지 적고 본인을 찾을 수 있는 힌트 남기는 쪽지 주기</label>
+        <label><input type="checkbox" name="checks" value="마니또 이름으로 3행시"> 마니또 이름으로 3행시</label>
+        <label><input type="checkbox" name="checks" value="정성을 담아서 마니또 얼굴 그리기"> 정성을 담아서 마니또 얼굴 그리기</label>
+        <label><input type="checkbox" name="checks" value="마니또 앞에서 노래 한 소절 부르기"> 마니또 앞에서 노래 한 소절 부르기</label>
+        <label><input type="checkbox" name="checks" value="도움이 필요해 보이면 도와주기 & 실드쳐주기"> 도움이 필요해 보이면 도와주기 & 실드쳐주기</label>
+        <label><input type="checkbox" name="checks" value="좋아하는 관심사 묻기"> 좋아하는 관심사 묻기</label>
+
+        <button type="submit">제출하기</button>
+    </form>
+
+</body>
+
+</html>

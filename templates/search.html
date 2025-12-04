@@ -38,7 +38,7 @@
         th,
         td {
             border: 1px solid #ddd;
-            padding: 6px 8px;
+            padding: 8px 10px;
             text-align: center;
         }
 
@@ -89,6 +89,19 @@
         <button type="submit">검색</button>
     </form>
 
+    {% set missions = [
+    ("칭찬", "칭찬 3개"),
+    ("대화하기", "먼저 말 걸고 대화하기"),
+    ("간식", "작은 간식 주기"),
+    ("인사", "먼저 인사하기"),
+    ("응원 메시지", "응원하는 메시지 적고 본인을 찾을 수 있는 힌트 남기는 쪽지 주기"),
+    ("3행시", "마니또 이름으로 3행시 해서 쪽지 남기기"),
+    ("얼굴 그리기", "정성을 담아서 마니또 얼굴 그려주기"),
+    ("노래 한 소절", "마니또 앞에서 노래 한 소절 부르기"),
+    ("도와주기", "도움이 필요해 보이면 도와주기 & 실드 쳐주기"),
+    ("관심사 묻기", "좋아하는 관심사 묻기")
+    ] %}
+
     {% if query %}
     {% if records %}
     <table>
@@ -96,12 +109,9 @@
             <tr>
                 <th>번호</th>
                 <th>이름</th>
-
-                {# items = [('칭찬','칭찬 3개'), ...] #}
-                {% for short, full in items %}
-                <th>{{ short }}</th>
+                {% for col, _ in missions %}
+                <th>{{ col }}</th>
                 {% endfor %}
-
                 <th>제출 시간</th>
                 <th>관리</th>
             </tr>
@@ -112,12 +122,14 @@
                 <td>{{ loop.index }}</td>
                 <td>{{ r.name }}</td>
 
-                {% for short, full in items %}
+                {% for _, value in missions %}
                 <td>
-                    {% if r.checks and full in r.checks %}
-                    O
+                    {% if r.checks is string %}
+                    {% if r.checks == value %}O{% else %}-{% endif %}
+                    {% elif r.checks is iterable %}
+                    {% if value in r.checks %}O{% else %}-{% endif %}
                     {% else %}
-                    –
+                    -
                     {% endif %}
                 </td>
                 {% endfor %}
