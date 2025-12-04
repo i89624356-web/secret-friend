@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, abort
 import json
 import os
 from datetime import datetime, timezone, timedelta
+from collections import OrderedDict
 
 app = Flask(__name__)
 
@@ -11,7 +12,7 @@ DATA_FILE = "data.json"
 KST = timezone(timedelta(hours=9))
 
 
-CHECK_ITEMS = [
+MISSIONS = [
     ("칭찬", "칭찬 3개"),
     ("대화하기", "먼저 말 걸고 대화하기"),
     ("간식", "작은 간식 주기"),
@@ -100,7 +101,7 @@ def admin_page():
 @app.route("/admin/summary")
 def admin_summary():
     records = load_records()
-    return render_template("summary.html", records=records, items=CHECK_ITEMS)
+    return render_template("summary.html", records=records, items=MISSIONS)
 
 
 # ======================
@@ -167,7 +168,7 @@ def admin_search():
     "search.html",
     query=query,
     records=filtered,
-    items=CHECK_ITEMS,   # ← 추가
+    items=MISSIONS,   # ← 추가
 )
 
 
@@ -210,8 +211,67 @@ def admin_date_search():
         date_query=date_query,
         records=filtered,
         sort=sort_mode,
-        items=CHECK_ITEMS,   # ← 추가
+        items=MISSIONS,   # ← 추가
     )
+
+
+@app.route("/admin/counts")
+def admin_counts():
+    all_records = load_records()
+
+    # name -> {"first_idx": 처음 등장한 인덱스, "missions": set(완수한 미션 문자열)}
+    stats = OrderedDict()
+
+    for idx, r in enumerate(all_records):
+        name = (r.get("name") or "").strip()
+        if not name:
+            continue
+
+        if name not in stats:
+            stats[name] = {
+                "first_idx": idx,
+                "missions": set(),
+            }
+
+        checks = r.get("checks", [])
+        # 예전 데이터가 문자열 하나일 수도 있으므로 통일
+        if isinstance(checks, str):
+            checks = [checks]
+
+        for c in checks:
+            stats[name]["missions"].add(c)
+
+    # 출력용 rows 리스트로 변환
+    rows = []
+    for name, info in stats.items():
+        missions_set = info["missions"]
+        # 이 사람의 미션 완수 개수(중복 제거된 종류 수)
+        count = sum(1 for key, _ in MISSIONS if key in missions_set)  # <- 아래에서 오타 수정
+
+        rows.append({
+            "name": name,
+            "missions": missions_set,      # set of 문자열(미션 원문)
+            "count": count,
+            "first_idx": info["first_idx"]
+        })
+
+    # 정렬 모드: submit(기본, 처음 제출순) / name / count
+    sort_mode = request.args.get("sort", "submit")
+
+    if sort_mode == "name":
+        rows.sort(key=lambda r: r["name"])
+    elif sort_mode == "count":
+        rows.sort(key=lambda r: (-r["count"], r["name"]))
+    else:  # submit
+        rows.sort(key=lambda r: r["first_idx"])
+
+    return render_template(
+        "counts.html",
+        rows=rows,
+        missions=MISSIONS,
+        sort=sort_mode,
+    )
+
 
 # ======================
 # 서버 실행
