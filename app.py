@@ -101,7 +101,7 @@ def admin_page():
 @app.route("/admin/summary")
 def admin_summary():
     records = load_records()
-    return render_template("summary.html", records=records, items=MISSIONS)
+    return render_template("summary.html", records=records, missions=MISSIONS)
 
 
 # ======================
@@ -164,12 +164,7 @@ def admin_search():
             if r.get("name", "").lower() == q_lower
         ]
 
-    return render_template(
-    "search.html",
-    query=query,
-    records=filtered,
-    items=MISSIONS,   # ← 추가
-)
+    return render_template("search.html", query=query, records=filtered, missions=MISSIONS)   # ← 추가
 
 
 # ======================
@@ -211,7 +206,7 @@ def admin_date_search():
         date_query=date_query,
         records=filtered,
         sort=sort_mode,
-        items=MISSIONS,   # ← 추가
+        missions=MISSIONS,   # ← 추가
     )
 
 
