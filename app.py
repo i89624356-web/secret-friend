@@ -11,6 +11,20 @@ DATA_FILE = "data.json"
 KST = timezone(timedelta(hours=9))
 
 
+CHECK_ITEMS = [
+    "칭찬 3개",
+    "먼저 말 걸고 대화하기",
+    "작은 간식 주기",
+    "먼저 인사하기",
+    "응원하는 메시지 적고 본인을 찾을 수 있는 힌트 남기는 쪽지 주기",
+    "마니또 이름으로 3행시 해서 쪽지 남기기",
+    "정성을 담아서 마니또 얼굴 그려주기",
+    "마니또 앞에서 노래 한 소절 부르기",
+    "도움이 필요해 보이면 도와주기 & 실드 쳐주기",
+    "좋아하는 관심사 묻기",
+]
+
+
 # ======================
 # 공통: 기록 불러오기 / 저장하기
 # ======================
@@ -87,7 +101,7 @@ def admin_page():
 @app.route("/admin/summary")
 def admin_summary():
     records = load_records()
-    return render_template("summary.html", records=records)
+    return render_template("summary.html", records=records, items=CHECK_ITEMS)
 
 
 # ======================

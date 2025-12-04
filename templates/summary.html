@@ -10,10 +10,6 @@
             margin: 40px;
         }
 
-        h1 {
-            margin-bottom: 20px;
-        }
-
         table {
             border-collapse: collapse;
             width: 100%;
@@ -22,8 +18,8 @@
         th,
         td {
             border: 1px solid #ddd;
-            padding: 8px 10px;
-            text-align: left;
+            padding: 6px 8px;
+            text-align: center;
         }
 
         th {
@@ -34,21 +30,15 @@
             background: #fafafa;
         }
 
-        a {
-            text-decoration: none;
-            color: #6c2bd9;
-        }
-
-        button {
+        .delete-btn {
             padding: 4px 10px;
             background: #e63946;
             color: white;
             border: none;
             border-radius: 4px;
-            cursor: pointer;
         }
 
-        button:hover {
+        .delete-btn:hover {
             background: #d62839;
         }
     </style>
@@ -63,40 +53,47 @@
             <tr>
                 <th>번호</th>
                 <th>이름</th>
-                <th>체크한 항목</th>
-                <th>제출 시각</th>
+
+                <!-- 10개 항목 헤더 자동 생성 -->
+                {% for item in items %}
+                <th>{{ item }}</th>
+                {% endfor %}
+
+                <th>제출 시간</th>
                 <th>관리</th>
             </tr>
         </thead>
+
         <tbody>
             {% for r in records %}
             <tr>
                 <td>{{ loop.index }}</td>
                 <td>{{ r.name }}</td>
 
+                <!-- 각 항목에 대해 O 또는 – 표시 -->
+                {% for item in items %}
                 <td>
-                    {% if r.checks is string %}
-                    {{ r.checks }}
-                    {% elif r.checks is iterable %}
-                    {{ r.checks | join(', ') }}
+                    {% if r.checks and item in r.checks %}
+                    O
                     {% else %}
-                    {{ r.checks }}
+                    –
                     {% endif %}
                 </td>
+                {% endfor %}
 
                 <td>{{ r.time }}</td>
 
-                <!-- 삭제 버튼 -->
                 <td>
                     <form method="post" action="{{ url_for('delete', idx=loop.index0) }}"
-                        onsubmit="return confirm('삭제 하시겠습니까?');" style="display:inline;">
-                        <button type="submit">삭제</button>
+                        onsubmit="return confirm('삭제하시겠습니까?');" style="display:inline;">
+                        <button class="delete-btn">삭제</button>
                     </form>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+
     {% else %}
     <p>아직 제출된 데이터가 없습니다.</p>
     {% endif %}
