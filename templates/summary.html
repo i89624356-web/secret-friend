@@ -54,9 +54,9 @@
                 <th>번호</th>
                 <th>이름</th>
 
-                <!-- 10개 항목 헤더 자동 생성 -->
-                {% for item in items %}
-                <th>{{ item }}</th>
+                {# items = [('칭찬','칭찬 3개'), ...] #}
+                {% for short, full in items %}
+                <th>{{ short }}</th>
                 {% endfor %}
 
                 <th>제출 시간</th>
@@ -70,10 +70,9 @@
                 <td>{{ loop.index }}</td>
                 <td>{{ r.name }}</td>
 
-                <!-- 각 항목에 대해 O 또는 – 표시 -->
-                {% for item in items %}
+                {% for short, full in items %}
                 <td>
-                    {% if r.checks and item in r.checks %}
+                    {% if r.checks and full in r.checks %}
                     O
                     {% else %}
                     –
