@@ -13,7 +13,9 @@
 
     <p>체크한 항목:</p>
     <ul>
-        <li>{{ checks }}</li>
+        {% for c in checks %}
+        <li>{{ c }}</li>
+        {% endfor %}
     </ul>
 
 

@@ -58,7 +58,7 @@ def index():
 @app.route("/result", methods=["POST"])
 def result():
     name = request.form.get("name")
-    checks = request.form.get("checks")  # 하나만 선택할 수 있으므로 get()
+    checks = request.form.getlist("checks")   # 여러 개 받기
 
     save_record(name, checks)
 

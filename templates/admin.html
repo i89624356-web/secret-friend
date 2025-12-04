@@ -48,7 +48,15 @@
     <ul>
         {% for r in summary %}
         <li>
-            <strong>{{ r.name }}</strong> - {{ r.checks }} ({{ r.time }})
+            <strong>{{ r.name }}</strong> -
+            {% if r.checks is string %}
+            {{ r.checks }}
+            {% elif r.checks is iterable %}
+            {{ r.checks | join(', ') }}
+            {% else %}
+            {{ r.checks }}
+            {% endif %}
+            ({{ r.time }})
         </li>
         {% endfor %}
     </ul>
