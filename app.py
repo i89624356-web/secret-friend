@@ -145,7 +145,7 @@ def export_summary():
     writer = csv.writer(output)
 
     # 헤더: 번호, 이름, 미션들, 제출 시각
-    header = ["번호", "이름"] + [col for col, _ in MISSIONS] + ["제출 시각"]
+    header = ["번호", "이름"] + [col for col, _ in MISSIONS]
     writer.writerow(header)
 
     for idx, r in enumerate(rows, start=1):
@@ -166,7 +166,6 @@ def export_summary():
         for _, value in MISSIONS:
             row.append("O" if value in checks_list else "-")
 
-        row.append(r.get("time", ""))
         writer.writerow(row)
 
     csv_text = output.getvalue()
