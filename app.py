@@ -100,16 +100,22 @@ def admin_page():
 # ======================
 @app.route("/admin/summary")
 def admin_summary():
-    records = load_records()
+    all_records = load_records()
 
     # sort 파라미터: 1이면 이름순
     sort_mode = (request.args.get("sort") or "0") == "1"
 
+    # 원본 인덱스(_idx)를 들고 있는 리스트로 변환
+    records = [
+        {**r, "_idx": i}
+        for i, r in enumerate(all_records)
+    ]
+
     if sort_mode:
-        records = sorted(records, key=lambda r: r.get("name", ""))
+        # 이름 기준으로 정렬 (표시 순서만 바뀜, _idx는 그대로 유지)
+        records.sort(key=lambda r: r.get("name", ""))
 
     return render_template("summary.html", records=records, missions=MISSIONS, sort=sort_mode)
-
 
 # ======================
 # 특정 데이터 삭제

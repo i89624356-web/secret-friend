@@ -102,7 +102,7 @@
                 <td>{{ r.time }}</td>
 
                 <td>
-                    <form method="post" action="{{ url_for('delete', idx=loop.index0) }}"
+                    <form method="post" action="{{ url_for('delete', idx=r._idx) }}"
                         onsubmit="return confirm('삭제 하시겠습니까?');" style="display:inline;">
                         <button type="submit">삭제</button>
                     </form>
