@@ -1,7 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for, abort
+from flask import Flask, render_template, request, redirect, url_for, abort, make_response
 import json
 import os
 from datetime import datetime, timezone, timedelta
+import csv
+import io
 
 app = Flask(__name__)
 
@@ -119,6 +121,63 @@ def admin_summary():
         records.sort(key=lambda r: r.get("name", ""))
 
     return render_template("summary.html", records=records, missions=MISSIONS, sort=sort_mode)
+
+
+# ======================
+# /admin/summary 결과를 CSV(엑셀)로 다운로드
+# ======================
+@app.route("/admin/summary/export")
+def export_summary():
+    all_records = load_records()
+    sort_mode = (request.args.get("sort") or "0") == "1"
+
+    # admin_summary와 동일하게 _idx를 붙여서 정렬
+    rows = [
+        {**r, "_idx": i}
+        for i, r in enumerate(all_records)
+    ]
+
+    if sort_mode:
+        rows.sort(key=lambda r: r.get("name", ""))
+
+    # CSV 작성
+    output = io.StringIO()
+    writer = csv.writer(output)
+
+    # 헤더: 번호, 이름, 미션들, 제출 시각
+    header = ["번호", "이름"] + [col for col, _ in MISSIONS] + ["제출 시각"]
+    writer.writerow(header)
+
+    for idx, r in enumerate(rows, start=1):
+        name = r.get("name", "")
+        checks = r.get("checks", [])
+
+        # checks를 리스트로 통일
+        if isinstance(checks, str):
+            checks_list = [checks]
+        elif isinstance(checks, list):
+            checks_list = checks
+        else:
+            checks_list = []
+
+        row = [idx, name]
+
+        # 각 미션별로 O / -
+        for _, value in MISSIONS:
+            row.append("O" if value in checks_list else "-")
+
+        row.append(r.get("time", ""))
+        writer.writerow(row)
+
+    csv_data = output.getvalue()
+
+    # 응답 생성 (엑셀에서 한글 안 깨지게 utf-8-sig)
+    response = make_response(csv_data)
+    filename = "summary_name.csv" if sort_mode else "summary_order.csv"
+    response.headers["Content-Disposition"] = f'attachment; filename="{filename}"'
+    response.headers["Content-Type"] = "text/csv; charset=utf-8-sig"
+
+    return response
 
 
 # ======================

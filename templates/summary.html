@@ -60,8 +60,12 @@
     <p>
         {% if sort %}
         <a href="{{ url_for('admin_summary', sort=0) }}">제출순으로 보기</a>
+        &nbsp;|&nbsp;
+        <a href="{{ url_for('export_summary', sort=1) }}">엑셀로 다운로드</a>
         {% else %}
         <a href="{{ url_for('admin_summary', sort=1) }}">이름순으로 보기</a>
+        &nbsp;|&nbsp;
+        <a href="{{ url_for('export_summary', sort=0) }}">엑셀로 다운로드</a>
         {% endif %}
     </p>
 
