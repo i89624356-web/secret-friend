@@ -169,13 +169,16 @@ def export_summary():
         row.append(r.get("time", ""))
         writer.writerow(row)
 
-    csv_data = output.getvalue()
+    csv_text = output.getvalue()
 
-    # 응답 생성 (엑셀에서 한글 안 깨지게 utf-8-sig)
-    response = make_response(csv_data)
+    # 윈도우 엑셀에서 한글 안 깨지게 cp949(EUC-KR)로 인코딩
+    csv_bytes = csv_text.encode("cp949", "ignore")
+
+    response = make_response(csv_bytes)
     filename = "summary_name.csv" if sort_mode else "summary_order.csv"
     response.headers["Content-Disposition"] = f'attachment; filename="{filename}"'
-    response.headers["Content-Type"] = "text/csv; charset=utf-8-sig"
+    response.headers["Content-Type"] = "text/csv; charset=cp949"
+
 
     return response
 
