@@ -101,7 +101,14 @@ def admin_page():
 @app.route("/admin/summary")
 def admin_summary():
     records = load_records()
-    return render_template("summary.html", records=records, missions=MISSIONS)
+
+    # sort 파라미터: 1이면 이름순
+    sort_mode = (request.args.get("sort") or "0") == "1"
+
+    if sort_mode:
+        records = sorted(records, key=lambda r: r.get("name", ""))
+
+    return render_template("summary.html", records=records, missions=MISSIONS, sort=sort_mode)
 
 
 # ======================
