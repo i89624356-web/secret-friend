@@ -105,17 +105,18 @@ def admin_summary():
     # sort 파라미터: 1이면 이름순
     sort_mode = (request.args.get("sort") or "0") == "1"
 
-    # 원본 인덱스(_idx)를 들고 있는 리스트로 변환
+    # 원본 인덱스(_idx)를 붙여서 리스트 생성
     records = [
         {**r, "_idx": i}
         for i, r in enumerate(all_records)
     ]
 
+    # sort_mode일 때 화면 표시 순서만 이름순 정렬
     if sort_mode:
-        # 이름 기준으로 정렬 (표시 순서만 바뀜, _idx는 그대로 유지)
         records.sort(key=lambda r: r.get("name", ""))
 
     return render_template("summary.html", records=records, missions=MISSIONS, sort=sort_mode)
+
 
 # ======================
 # 특정 데이터 삭제
@@ -124,32 +125,61 @@ def admin_summary():
 def delete(idx):
     records = load_records()
 
-    # 인덱스 범위 체크
     if idx < 0 or idx >= len(records):
         abort(404)
 
-    # 해당 기록 삭제
     records.pop(idx)
     save_records(records)
 
-    # 어디에서 삭제 요청이 왔는지 확인
     source = request.form.get("source")
 
-    # 1) 이름 검색 페이지에서 삭제한 경우
     if source == "search":
         name = (request.form.get("name") or "").strip()
         if name:
             return redirect(url_for("admin_search", name=name))
 
-    # 2) 날짜 검색 페이지에서 삭제한 경우
     if source == "date":
         date = (request.form.get("date") or "").strip()
         sort = request.form.get("sort", "0")
         if date:
             return redirect(url_for("admin_date_search", date=date, sort=sort))
 
-    # 3) 기본: 전체 요약 페이지로
+    if source == "summary":
+        sort = request.form.get("sort", "0")
+        return redirect(url_for("admin_summary", sort=sort))
+
     return redirect(url_for("admin_summary"))
+
+
+@app.route("/admin/edit_name/<int:idx>", methods=["POST"])
+def edit_name(idx):
+    records = load_records()
+
+    if idx < 0 or idx >= len(records):
+        abort(404)
+
+    new_name = (request.form.get("name") or "").strip()
+
+    if new_name:
+        records[idx]["name"] = new_name
+        save_records(records)
+
+    # 어디서 수정 요청이 왔는지
+    source = request.form.get("source")
+    sort = request.form.get("sort", "0")
+
+    # 1) 전체 요약 페이지에서 수정한 경우
+    if source == "summary":
+        return redirect(url_for("admin_summary", sort=sort))
+
+    # 2) 이름 검색 페이지에서 수정 기능을 나중에 붙일 수 있음 (예시)
+    if source == "search":
+        name_query = (request.form.get("query") or "").strip()
+        if name_query:
+            return redirect(url_for("admin_search", name=name_query))
+
+    # 기본값: 전체 요약 페이지로
+    return redirect(url_for("admin_summary", sort=sort))
 
 
 # ======================
