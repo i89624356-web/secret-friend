@@ -102,20 +102,15 @@
                 <td>{{ r.time }}</td>
 
                 <td>
-                    {# 이름 수정 폼 #}
-                    <form method="post" action="{{ url_for('edit_name', idx=r._idx) }}" style="display:inline;">
-                        <input type="text" name="name" value="{{ r.name }}" style="width: 90px;">
-                        <input type="hidden" name="source" value="summary">
-                        <input type="hidden" name="sort" value="{{ 1 if sort else 0 }}">
-                        <button type="submit">수정</button>
-                    </form>
+                    <!-- 이름 수정 페이지로 이동 -->
+                    <a href="{{ url_for('edit_page', idx=r._idx, sort=1 if sort else 0) }}">이름 수정</a>
 
-                    {# 삭제 폼 #}
+                    <!-- 삭제 폼 -->
                     <form method="post" action="{{ url_for('delete', idx=r._idx) }}"
-                        onsubmit="return confirm('삭제 하시겠습니까?');" style="display:inline; margin-left:4px;">
+                        onsubmit="return confirm('삭제 하시겠습니까?');" style="display:inline; margin-left:8px;">
                         <input type="hidden" name="source" value="summary">
                         <input type="hidden" name="sort" value="{{ 1 if sort else 0 }}">
-                        <button type="submit">삭제</button>
+                        <button type="submit" class="btn-delete">삭제</button>
                     </form>
                 </td>
             </tr>

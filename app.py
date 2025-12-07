@@ -50,8 +50,8 @@ def save_record(name, checks):
 
     record = {
         "name": name,
-        "checks": checks,  # 문자열 1개 저장됨
-        "time": datetime.now(KST).strftime("%Y-%m-%d %H:%M:%S")
+        "checks": checks,  # 문자열 또는 리스트 저장
+        "time": datetime.now(KST).strftime("%Y-%m-%d %H:%M:%S"),
     }
 
     records.append(record)
@@ -72,7 +72,7 @@ def index():
 @app.route("/result", methods=["POST"])
 def result():
     name = request.form.get("name")
-    checks = request.form.getlist("checks")   # 여러 개 받기
+    checks = request.form.getlist("checks")  # 여러 개 받기
 
     save_record(name, checks)
 
@@ -86,7 +86,7 @@ def result():
 def admin_page():
     data = load_records()
 
-    # 전체 기록
+    # 전체 기록 (정렬 없이 원본 순서)
     records = data
 
     # 마지막 5개 기록 (최신순)
@@ -96,7 +96,10 @@ def admin_page():
 
 
 # ======================
-# 관리자 전체 표 페이지
+# 관리자 전체 표 페이지 (/admin/summary)
+#   - sort=1 → 이름순
+#   - sort=0 → 저장된 순서
+#   - 각 record에 원본 인덱스(_idx) 부여
 # ======================
 @app.route("/admin/summary")
 def admin_summary():
@@ -105,17 +108,51 @@ def admin_summary():
     # sort 파라미터: 1이면 이름순
     sort_mode = (request.args.get("sort") or "0") == "1"
 
-    # 원본 인덱스(_idx)를 붙여서 리스트 생성
+    # 원본 인덱스(_idx)를 들고 있는 리스트로 변환
     records = [
         {**r, "_idx": i}
         for i, r in enumerate(all_records)
     ]
 
-    # sort_mode일 때 화면 표시 순서만 이름순 정렬
     if sort_mode:
+        # 이름 기준으로 정렬 (표시 순서만 바뀜, _idx는 그대로 유지)
         records.sort(key=lambda r: r.get("name", ""))
 
     return render_template("summary.html", records=records, missions=MISSIONS, sort=sort_mode)
+
+
+# ======================
+# 이름 수정 페이지 (/admin/edit/<idx>)
+#   - GET : 수정 페이지 표시
+#   - POST: 이름 저장 후 /admin/summary로 리다이렉트
+# ======================
+@app.route("/admin/edit/<int:idx>", methods=["GET", "POST"])
+def edit_page(idx):
+    records = load_records()
+
+    if idx < 0 or idx >= len(records):
+        abort(404)
+
+    if request.method == "POST":
+        new_name = (request.form.get("name") or "").strip()
+        sort_mode = request.form.get("sort", "0")
+
+        if new_name:
+            records[idx]["name"] = new_name
+            save_records(records)
+
+        return redirect(url_for("admin_summary", sort=sort_mode))
+
+    # GET 요청 → 현재 이름을 들고 수정 페이지 렌더링
+    current_name = records[idx].get("name", "")
+    sort_mode = request.args.get("sort", "0")
+
+    return render_template(
+        "edit_name.html",
+        name=current_name,
+        idx=idx,
+        sort=sort_mode,
+    )
 
 
 # ======================
@@ -125,61 +162,37 @@ def admin_summary():
 def delete(idx):
     records = load_records()
 
+    # 인덱스 범위 체크
     if idx < 0 or idx >= len(records):
         abort(404)
 
+    # 해당 기록 삭제
     records.pop(idx)
     save_records(records)
 
+    # 어디에서 삭제 요청이 왔는지 확인
     source = request.form.get("source")
 
+    # 1) 이름 검색 페이지에서 삭제한 경우
     if source == "search":
         name = (request.form.get("name") or "").strip()
         if name:
             return redirect(url_for("admin_search", name=name))
 
+    # 2) 날짜 검색 페이지에서 삭제한 경우
     if source == "date":
         date = (request.form.get("date") or "").strip()
         sort = request.form.get("sort", "0")
         if date:
             return redirect(url_for("admin_date_search", date=date, sort=sort))
 
+    # 3) 전체 요약(/admin/summary)에서 삭제한 경우
     if source == "summary":
         sort = request.form.get("sort", "0")
         return redirect(url_for("admin_summary", sort=sort))
 
+    # 4) 기본: 전체 요약 페이지로
     return redirect(url_for("admin_summary"))
-
-
-@app.route("/admin/edit_name/<int:idx>", methods=["POST"])
-def edit_name(idx):
-    records = load_records()
-
-    if idx < 0 or idx >= len(records):
-        abort(404)
-
-    new_name = (request.form.get("name") or "").strip()
-
-    if new_name:
-        records[idx]["name"] = new_name
-        save_records(records)
-
-    # 어디서 수정 요청이 왔는지
-    source = request.form.get("source")
-    sort = request.form.get("sort", "0")
-
-    # 1) 전체 요약 페이지에서 수정한 경우
-    if source == "summary":
-        return redirect(url_for("admin_summary", sort=sort))
-
-    # 2) 이름 검색 페이지에서 수정 기능을 나중에 붙일 수 있음 (예시)
-    if source == "search":
-        name_query = (request.form.get("query") or "").strip()
-        if name_query:
-            return redirect(url_for("admin_search", name=name_query))
-
-    # 기본값: 전체 요약 페이지로
-    return redirect(url_for("admin_summary", sort=sort))
 
 
 # ======================
@@ -207,7 +220,7 @@ def admin_search():
             if r.get("name", "").lower() == q_lower
         ]
 
-    return render_template("search.html", query=query, records=filtered, missions=MISSIONS)   # ← 추가
+    return render_template("search.html", query=query, records=filtered, missions=MISSIONS)
 
 
 # ======================
@@ -249,7 +262,7 @@ def admin_date_search():
         date_query=date_query,
         records=filtered,
         sort=sort_mode,
-        missions=MISSIONS,   # ← 추가
+        missions=MISSIONS,
     )
 
 
